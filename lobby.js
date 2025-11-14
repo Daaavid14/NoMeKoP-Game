@@ -1,3 +1,23 @@
+
+const audioManager = {
+    mainVolume: 1.0,
+    sfxVolume: 1.0,
+    musicVolume: 1.0,
+    muted: false,
+
+    updateVolumes() {
+        const effectiveMusicVolume = this.muted ? 0 : this.mainVolume * this.musicVolume;
+        const effectiveSfxVolume = this.muted ? 0 : this.mainVolume * this.sfxVolume;
+
+        const bg = document.getElementById("bgMusic");
+        if (bg) bg.volume = effectiveMusicVolume;
+
+        const click = document.getElementById("clickSound");
+        if (click) click.volume = effectiveSfxVolume;
+    }
+};
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const clickSound = document.getElementById("clickSound");
     const buttons = document.querySelector(".buttons");
@@ -18,6 +38,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const sfxVolume = document.getElementById("sfxVolume");
     const musicVolume = document.getElementById("musicVolume");
 
+    const pokeSpritesPanel = document.getElementById("pokeSpritesPanel");
+    const spritesContainer = document.getElementById("spritesContainer");
+
     function hideLobby() {
         buttons.style.opacity = "0";
         setTimeout(() => buttons.style.display = "none", 300);
@@ -26,13 +49,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showLobby() {
         settingsSection.style.display = "none";
-        status.style.display = "none";
+        audioPanel.style.display = "none";
+        pokeSpritesPanel.style.display = "none";
 
         buttons.style.display = "flex";
-        setTimeout(() => (buttons.style.opacity = "1"), 50);
-
+        buttons.style.opacity = "1";
         backToLobby.style.display = "none";
-    }
+    }   
+
+
 
     function showStatus(msg) {
         hideLobby();
@@ -43,13 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => status.style.opacity = "1", 50);
     }
 
-    // Back button
     backToLobby.addEventListener("click", () => {
         clickSound.play();
         showLobby();
     });
 
-    // Settings button
     settings.addEventListener("click", (e) => {
         e.preventDefault();
         clickSound.play();
@@ -61,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 300);
     });
 
-    // Menu button actions
     findMatch.addEventListener("click", (e) => {
         e.preventDefault();
         showStatus("🔍 Searching for Match...");
@@ -69,15 +91,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     pokeSprites.addEventListener("click", (e) => {
         e.preventDefault();
-        showStatus("🖼️ Loading Pokémon Sprites...");
+        clickSound.play();
+
+        hideLobby();
+
+        pokeSpritesPanel.style.display = "block";
+        backToLobby.style.display = "block";
+
+        loadAllSprites();
     });
+
+
 
     achievements.addEventListener("click", (e) => {
         e.preventDefault();
         showStatus("🏆 Opening Achievements...");
     });
 
-    // Settings sub-option: Fullscreen
     document.getElementById("fullscreenToggle").addEventListener("click", () => {
         clickSound.play();
 
@@ -113,5 +143,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
         backToLobby.style.display = "block";
     });
+
+    mainVolume.addEventListener("input", (e) => {
+        audioManager.mainVolume = e.target.value;
+        audioManager.updateVolumes();
+    });
+
+    sfxVolume.addEventListener("input", (e) => {
+        audioManager.sfxVolume = e.target.value;
+        audioManager.updateVolumes();
+    });
+
+    musicVolume.addEventListener("input", (e) => {
+        audioManager.musicVolume = e.target.value;
+        audioManager.updateVolumes();
+    });
+
+    function loadAllSprites() {
+        if (spritesContainer.children.length > 0) return;
+
+        const totalSprites = 1123;
+
+        for (let i = 1; i <= totalSprites; i++) {
+            const box = document.createElement("div");
+            box.classList.add("sprite-box");
+
+            const img = document.createElement("img");
+            img.src = `pokeSprites/${i}.gif`;  
+            img.alt = `Pokemon ${i}`;
+
+            box.appendChild(img);
+            spritesContainer.appendChild(box);
+        }
+    }
+
 
 });
