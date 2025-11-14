@@ -78,6 +78,85 @@ div .nomekop {
     100% { box-shadow: 0 0 10px rgba(0, 200, 255, 0.6); }
 }
 
+/* SETTINGS PANEL */
+.settings-section {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 30, 60, 0.8);
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 0 20px cyan;
+}
+
+.settings-section h2 {
+  color: white;
+  margin-bottom: 20px;
+}
+
+.option-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background: rgba(0,150,255,0.8);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.option-btn:hover {
+  background: rgba(0,180,255,1);
+  transform: scale(1.04);
+}
+
+#battleArena:fullscreen {
+    object-fit: contain;
+    background: url(/backgrounds/background.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+.audio-panel {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    transform: translate(-50%, -50%);
+    background: rgba(48, 128, 207, 0.85);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 20px cyan;
+}
+
+.audio-panel h2 {
+    color: white;
+    font-size: larger;
+    margin-bottom: 15px;
+}
+
+.audio-panel label {
+    display: block;
+    color: white;
+    margin-top: 14px;
+    font-size: 14px;
+    text-align: left;
+}
+
+.audio-panel input[type=range] {
+    width: 100%;
+    margin-top: 5px;
+}
+
 .back-btn {
   position: absolute;
   border: 2px solid #0ff;
@@ -97,6 +176,29 @@ div .nomekop {
 }
 
 .back-btn:hover {
+  background: rgba(0, 160, 255, 0.9);
+  transform: scale(1.05);
+}
+
+.back-btns {
+  position: absolute;
+  border: 2px solid #0ff;
+  top: 12%;
+  left: 73%;
+  background: rgba(0, 120, 255, 0.85);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 2px solid #0ff;
+  box-shadow: 0 0 10px rgba(0, 200, 255, 0.8);
+  cursor: pointer;
+  display: none;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.back-btns:hover {
   background: rgba(0, 160, 255, 0.9);
   transform: scale(1.05);
 }
