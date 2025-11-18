@@ -479,14 +479,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("fullscreenToggle").addEventListener("click", () => {
-        if (clickSound) clickSound.play();
-        const arena = document.getElementById("battleArena");
-        if (!document.fullscreenElement) {
-            arena.requestFullscreen().catch(()=>{});
-        } else {
-            document.exitFullscreen().catch(()=>{});
-        }
-    });
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(()=>{});
+    } else {
+        document.exitFullscreen().catch(()=>{});
+    }
+});
 
     audioSettingsBtn.addEventListener("click", () => {
         if (clickSound) clickSound.play();
@@ -614,7 +612,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // set sprites and names
         vsPlayerSprite.src = `pokeSprites/${spriteFiles[0]}`; // player choice; change as needed
         vsOppSprite.src = `pokeSprites/${currentOpponent.sprite}`;
-        vsPlayerName.textContent = "YOU";
+        vsPlayerName.textContent = "";
         vsOppName.textContent = currentOpponent.name;
 
         // open VS overlay
