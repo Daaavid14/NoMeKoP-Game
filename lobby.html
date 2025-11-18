@@ -101,51 +101,62 @@
         </div>
 
         <div id="battleOverlay" class="battle-overlay" aria-hidden="true">
-            <div class="battle-ui">
-                <div class="battle-top">
-                    <div class="opponent-panel">
-                        <div class="portrait">
-                            <img id="oppSprite" src="pokeSprites/Abra.gif" alt="opponent">
-                        </div>
-                        <div class="opp-meta">
-                            <div class="hpbar">
-                                <div id="oppHP" class="hp-inner" style="width:100%"></div>
-                            </div>
-                            <div id="oppHPText" class="hp-text">100 / 100</div>
-                            <div id="oppLabel" class="label">Enemy</div>
-                        </div>
-                    </div>
+    <div class="battle-ui">
 
-                    <div class="player-panel">
-                        <div class="portrait">
-                            <img id="playerSprite" src="pokeSprites/Absol.gif" alt="player">
-                        </div>
-                        <div class="player-meta">
-                            <div class="hpbar">
-                                <div id="playerHP" class="hp-inner" style="width:100%"></div>
-                            </div>
-                            <div id="playerHPText" class="hp-text">100 / 100</div>
-                            <div id="playerLabel" class="label"></div>
-                        </div>
-                    </div>
+        <div class="battle-top">
+            <div class="opponent-panel">
+                <div class="portrait">
+                    <img id="oppSprite" src="pokeSprites/Abra.gif" alt="opponent">
                 </div>
-
-                <div class="battle-controls">
-                    <div class="battle-log" id="battleLog">Battle start! Prepare to fight.</div>
-                    <div class="action-row">
-                        <button id="attackBtn" class="option-btn">Attack</button>
-                        <button id="defendBtn" class="option-btn">Defend</button>
-                        <button id="itemBtn" class="option-btn">Use Potion</button>
-                        <button id="forfeitBtn" class="option-btn">Forfeit</button>
+                <div class="opp-meta">
+                    <div class="hpbar">
+                        <div id="oppHP" class="hp-inner" style="width:100%"></div>
                     </div>
+                    <div id="oppHPText" class="hp-text">100 / 100</div>
+                    <div id="oppLabel" class="label">Enemy</div>
                 </div>
+            </div>
 
-                <div class="battle-footer">
-                    <button id="returnToLobbyBtn" class="option-btn" style="display:none;">Return to Lobby</button>
-                    <button id="rematchBtn" class="option-btn" style="display:none;">Rematch</button>
+            <div class="player-panel">
+                <div class="portrait">
+                    <img id="playerSprite" src="pokeSprites/Absol.gif" alt="player">
+                </div>
+                <div class="player-meta">
+                    <div class="hpbar">
+                        <div id="playerHP" class="hp-inner" style="width:100%"></div>
+                    </div>
+                    <div id="playerHPText" class="hp-text">100 / 100</div>
+                    <div id="playerLabel" class="label">You</div>
                 </div>
             </div>
         </div>
+
+        <div id="damageLayer"></div>
+
+        <div id="skillPanel">
+
+            <div id="energyArea">
+                <span class="energy-label">Energy:</span>
+                <div id="energyDots"></div>
+                <span id="energyCount">0 / 10</span>
+            </div>
+
+            <div id="skillCards">
+            </div>
+
+            <div id="battleButtons">
+                <button id="skipTurnBtn" class="option-btns">SKIP</button>
+                <button id="forfeitBtn" class="option-btns danger">FORFEIT</button>
+            </div>
+        </div>
+
+        <div class="battle-footer">
+            <button id="returnToLobbyBtn" class="option-btn" style="display:none;">Return to Lobby</button>
+            <button id="rematchBtn" class="option-btn" style="display:none;">Rematch</button>
+        </div>
+
+    </div>
+</div>
 
         <div id="winnerOverlay" class="winner-overlay" aria-hidden="true">
             <div class="winner-container">
