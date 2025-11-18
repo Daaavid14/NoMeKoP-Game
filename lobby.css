@@ -1,3 +1,4 @@
+/* --- (original styles preserved) --- */
 * {
     margin: 0;
     padding: 0;
@@ -20,8 +21,20 @@ section {
   background: #001220;
 }
 
-.background {
+.nomekop {
   position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 25vw;
+  max-width: 300px;
+  min-width: 110px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.battle-arena {
+ position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -30,44 +43,9 @@ section {
   z-index: 0;
 }
 
-.nomekop {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 22vw;
-  max-width: 300px;
-  min-width: 110px;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.battle-arena {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60vw;
-  max-width: 820px;
-  min-width: 240px;
-  border-radius: 18px;
-  box-shadow: 0 0 20px 12px rgba(0, 0, 0, 0.75);
-  border: 10px solid #0af;
-  padding: 0.35em;
-  object-fit: cover;
-  z-index: 5;
-  background: #001a2a;
-}
-
-.battle-arena img { 
-  width: 100%; 
-  height: 100%; 
-  object-fit: cover; 
-  border-radius: inherit; 
-}
-
 .buttons {
   position: absolute;
-  left: 69%;
+  left: 85%;
   transform: translateX(-50%);
   bottom: 15%;
   display: flex;
@@ -136,26 +114,43 @@ section {
 }
 
 .option-btn {
-  display: block;
-  width: 100%;
-  padding: 10px 12px;
-  margin: 8px 0;
-  background: rgba(0,150,255,0.9);
-  border: none;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: transform 0.15s ease;
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #009dff, #005eff);
+    border: 2px solid rgba(0,255,255,0.45);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(0,150,255,0.55),
+                inset 0 0 8px rgba(255,255,255,0.1);
+    transition: 0.18s ease;
 }
 
 .option-btn:hover {
-  background: rgba(0,180,255,1);
-  transform: scale(1.04);
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 0 22px rgba(0,200,255,0.9);
 }
 
-.audio-panel label { display:block; margin-top:10px; font-size:0.9rem; color: #eaf6ff; }
-.audio-panel input[type="range"] { width:100%; margin-top:6px; }
+.option-btn:active {
+    transform: scale(0.96);
+    box-shadow: 0 0 14px rgba(0,150,255,0.8);
+}
+
+.audio-panel label { 
+  display:block; 
+  margin-top:10px; 
+  font-size:0.9rem; 
+  color: #eaf6ff; 
+}
+
+.audio-panel input[type="range"] { 
+  width:100%; 
+  margin-top:6px; 
+}
 
 #battleArena:fullscreen {
     object-fit: contain;
@@ -215,21 +210,10 @@ a, button {
   inherit; font-size: 1rem; 
 }
 
-@media (min-width: 1200px) {
-  .nomekop { 
-    top: 7%; 
-  }
-  .battle-arena { 
-    width: 58vw; 
-    max-width: 980px; 
-  }
-}
-
 @media (max-width: 992px) {
   .nomekop { 
     width: 30vw; 
     max-width: 320px; 
-    top: 5.5%; 
   }
   .battle-arena { 
     width: 72vw; 
@@ -334,3 +318,517 @@ a, button {
     height: 64px;
     image-rendering: pixelated;
 }
+
+/* --- NEW: match & battle overlay styles --- */
+.match-overlay {
+  position: fixed;
+  inset: 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,0.65);
+  z-index: 3000;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .18s ease, visibility .18s;
+}
+
+.match-overlay[aria-hidden="false"] {
+  visibility: visible;
+  opacity: 1;
+}
+
+.match-card {
+  background: linear-gradient(180deg,#012733,#003755);
+  padding: 20px;
+  border-radius: 12px;
+  min-width: 280px;
+  width: min(420px, 90%);
+  color: white;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,180,255,0.12);
+  border: 2px solid rgba(0,255,255,0.12);
+}
+
+.match-view h3 { margin-bottom: 12px; }
+
+.dots {
+  display:inline-flex;
+  gap:6px;
+}
+.dots span {
+  width:10px;height:10px;border-radius:50%;
+  background: rgba(255,255,255,0.12);
+  animation: dotPulse 1.2s infinite;
+}
+.dots span:nth-child(2){ 
+  animation-delay: .18s; 
+}
+.dots span:nth-child(3){ 
+  animation-delay: .36s; 
+}
+@keyframes dotPulse { 
+  0% {
+    opacity:0.25; 
+    transform:translateY(0)
+  }
+    50% {
+      opacity:1; 
+      transform:translateY(-6px)
+    }
+    100% {
+      opacity:0.25; 
+      transform:translateY(0)
+    } 
+}
+
+.opponent-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
+}
+.opponent-card img{ 
+  width: 72px;
+  height: 72px; 
+  border-radius: 8px; 
+  object-fit: cover; 
+}
+
+.match-actions { 
+  display:flex; 
+  gap:10px; 
+  justify-content:center; 
+  margin-top:8px; }
+
+.battle-overlay {
+  position: fixed;
+  inset: 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index: 3500;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .18s ease, visibility .18s;
+}
+
+.battle-overlay[aria-hidden="false"] {
+  visibility: visible;
+  opacity: 1;
+}
+
+#battleOverlay {
+    background: url("/backgrounds/battleground.jpg") no-repeat center !important;
+    background-size: cover !important;
+
+    background-color: rgba(0,0,0,0.45);
+    background-blend-mode: multiply;
+}
+
+.battle-ui {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.player-panel {
+    position: absolute;
+    align-items: center;
+    left: 18%;
+    top: 40%;
+}
+
+.opponent-panel {
+    position: absolute;
+    align-items: center;
+    right: 15%;
+    top: 40%;
+}
+
+.player-meta {
+  position: absolute;
+  display: inline-block;
+  margin: 0;
+  top: -250px;
+  left: 5px;
+}
+
+.opp-meta {
+  position: absolute;
+  display: inline-block;
+  flex-direction: row-reverse;
+  margin: 0;
+  top: -250px;
+  right: 15px;
+}
+
+.portrait #oppSprite, #playerSprite {
+  width: 25vw; 
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.label {
+  position: relative;
+  text-align: center;
+  top: -4vh;
+  font-weight: bolder;
+  font-size: 1.5rem;
+  margin-top: 0;
+  color: white;
+}
+
+.hpbar { 
+  width: 200px; 
+  height: 30px; 
+  background: rgba(255,255,255,0.08); 
+  border-radius: 8px; 
+  overflow:hidden; 
+  border:1px solid rgba(255,255,255,0.04) 
+}
+
+.hp-inner { 
+  height:100%; 
+  width:100%; 
+  background: linear-gradient(90deg,#4caf50,#2ecc71); 
+  transition: width .28s linear; 
+}
+
+.hp-text {
+  position: relative;
+  top: -3.5vh;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: bolder;
+  margin-top: 0; 
+  color: #dff9ff; 
+  text-shadow: 0 1px 0 rgba(0,0,0,0.4) 
+}
+
+.battle-controls {
+    position: absolute;
+    bottom: 0;
+    left: 25%;
+    width: 50%;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.battle-log {
+  flex: 1;
+  min-height: 84px;
+  max-height: 170px;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  border-radius: 10px;
+}
+
+.action-row {
+  display:flex;
+  gap:8px;
+  width:220px;
+  margin-left:12px;
+  position: absolute;
+  right: 40px;
+  bottom: 40px;
+}
+
+.action-row .option-btn { 
+  width:100%; 
+  padding:10px; }
+
+.battle-footer { 
+  margin-top:12px; 
+  display:flex; 
+  gap:8px; 
+  justify-content:flex-end; 
+}
+
+@media (max-width:900px) {
+  .battle-top { 
+    flex-direction:column-reverse; 
+    align-items:center; 
+  }
+  .opponent-panel, .player-panel { 
+    width:100%; 
+    justify-content:center; 
+  }
+
+  .hpbar { 
+    width:140px; 
+  }
+  .action-row { 
+    flex-direction:row; 
+    width:100%; 
+    justify-content:space-between; 
+  }
+}
+
+.fade-in { 
+  animation: fadeIn .28s ease both; 
+}
+
+@keyframes fadeIn { from {opacity:0; transform: translateY(8px)} to {opacity:1; transform:none} }
+
+
+.vs-overlay {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 9000;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .25s ease, visibility .25s;
+}
+
+.vs-overlay[aria-hidden="false"] {
+    visibility: visible;
+    opacity: 1;
+}
+
+.vs-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: url("versus.jpg") no-repeat center;
+    background-size: cover; /* same sizing behavior as battle-arena */
+    overflow: hidden;
+}
+
+/* Energy / aura under sprites */
+.vs-energy {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,150,0.22), rgba(120,20,220,0.10), transparent 60%);
+    animation: pulseEnergy 1.8s infinite ease-in-out;
+}
+
+/* Sprite panes positioned so they appear centered relative to the background */
+.vs-left,
+.vs-right {
+    position: absolute;
+    top: 60%;
+    transform: translateY(-50%);
+    width: 40%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+.vs-left { 
+  left: 6%; 
+  animation: slideLeft .5s ease-out forwards; 
+}
+
+.vs-right { 
+  right: 6%; 
+  animation: slideRight .5s ease-out forwards; 
+}
+
+/* Sprite size tuned to look centered on the comic background */
+.vs-sprite {
+    width: 48%;
+    max-width: 320px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 22px rgba(255,255,255,0.9));
+    animation: floatSprite 2.4s infinite ease-in-out;
+}
+
+/* Nameplates */
+.vs-name {
+    font-size: 28px;
+    font-weight: 800;
+    color: white;
+    margin-top: 12px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* Center VS text */
+.vs-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: vsPop .6s ease-out .18s forwards;
+    pointer-events: none;
+}
+
+.vs-text {
+    font-family: Impact, sans-serif;
+    font-size: 200px;
+    color: white;
+    text-shadow: 0 0 40px red, 0 0 40px yellow;
+    letter-spacing: 3px;
+}
+
+/* flash & visual extras */
+.vs-flash {
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+}
+
+.vs-sparks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 350px;
+    opacity: 0;
+}
+
+.vs-impact {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 260px;
+    opacity: 0;
+}
+
+/* KEYFRAMES for VS overlay */
+@keyframes flashEffect {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    40% { opacity: 0; }
+    75% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes vsPop {
+    0% { transform: translate(-50%, -50%) scale(0); }
+    65% { transform: translate(-50%, -50%) scale(1.4); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes slideLeft {
+    0% { transform: translate(-120%, -50%); }
+    100% { transform: translate(0%, -50%); }
+}
+@keyframes slideRight {
+    0% { transform: translate(120%, -50%); }
+    100% { transform: translate(0%, -50%); }
+}
+
+@keyframes floatSprite {
+    0% { transform: translateY(-50%) translateY(0); }
+    50% { transform: translateY(-50%) translateY(-18px); }
+    100% { transform: translateY(-50%) translateY(0); }
+}
+
+@keyframes pulseEnergy {
+    0%,100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes sparksFlash {
+    0% { opacity: 0; transform: scale(0.4); }
+    100% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes impactPunch {
+    0% { opacity: 0; transform: scale(0.2); }
+    100% { opacity: 1; transform: scale(1.3); }
+}
+
+/* =========================
+   WINNER SCREEN COMIC STYLE
+   ========================= */
+
+.winner-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .35s ease, visibility .35s ease;
+}
+
+.winner-overlay[aria-hidden="false"] {
+    visibility: visible;
+    opacity: 1;
+}
+
+.winner-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.winner-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Main content floating above */
+.winner-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* WIN or LOSE text */
+.winner-title {
+    font-size: 90px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 25px black, 0 0 15px red;
+    margin-bottom: 25px;
+    animation: winnerPop .8s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes winnerPop {
+    0% { transform: scale(0.2); opacity: 0; }
+    60% { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+.winner-sprite {
+    width: 30%;
+    max-width: 320px;
+    filter: drop-shadow(0 0 22px white);
+    animation: winnerFloat 2.5s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes winnerFloat {
+    0% { transform: translateY(-10px); }
+    50% { transform: translateY(-25px); }
+    100% { transform: translateY(-10px); }
+}
+
+.winner-buttons {
+    margin-top: 35px;
+    display: flex;
+    gap: 20px;
+    pointer-events: auto;
+}
+
+.winner-buttons .option-btn {
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+
+

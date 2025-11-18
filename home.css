@@ -24,6 +24,7 @@ div .nomekop {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 700px;
+    z-index: 12;
 }
 
 button {
@@ -34,7 +35,7 @@ button {
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 15px 30px;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     cursor: pointer;
     border-radius: 20px;
     font-family: "Sixtyfour", sans-serif;
@@ -93,5 +94,6 @@ div .pokemon-ball {
     top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 40vw;
+    width: 50vw;
+    z-index: 0;
 }

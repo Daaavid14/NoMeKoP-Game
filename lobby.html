@@ -1,50 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="lobby.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="lobby.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="shortcut icon" href="backgrounds/pokemon-ball.png" type="image/x-icon">
     <title>Nomekop Game</title>
+    
 </head>
 <body>
     <section>
-        <img class="background" src="backgrounds/background.jpg" alt="background">
         <div>
             <img class="nomekop" src="backgrounds/nomekop.png" alt="nomekop">
             <img id="battleArena" class="battle-arena" src="battle-arena.jpg" alt="battle-arena">
-
+            <div id="pokeSpritesPanel" class="sprites-panel">
+                <h2>Pokémon Sprites</h2>
+                <div id="spritesContainer" class="sprites-grid"></div>
+            </div>
         </div>
+
         <div class="buttons">
             <div class="btns"><a href="#" id="find-match">Find Match</a></div>
             <div class="btns"><a href="#" id="poke-sprites">Poke Sprites</a></div>
             <div class="btns"><a href="#" id="achievements">Achievements</a></div>
             <div class="btns"><a href="#" id="settings">⚙ Settings</a></div>
         </div>
+
         <div id="status" class="status"></div>
+
         <div id="settingsSection" class="settings-section">
             <h2>⚙ Settings</h2>
             <button id="fullscreenToggle" class="option-btn">Fullscreen</button>
             <button id="audioSettings" class="option-btn">🔊 Audio Settings</button>
             <button id="helpCenter" class="option-btn">Help Center</button>
         </div>
+
         <div id="audioSettingsPanel" class="audio-panel">
             <h2>🔊 Audio Settings</h2>
-
+            
             <label>Main Volume</label>
             <input type="range" id="mainVolume" min="0" max="1" step="0.01">
-
             <label>Sound Effects</label>
             <input type="range" id="sfxVolume" min="0" max="1" step="0.01">
-
             <label>Music Volume</label>
             <input type="range" id="musicVolume" min="0" max="1" step="0.01">
-
         </div>
+
         <button id="backToSettings" class="back-btns">Back</button>
         <button id="backToLobby" class="back-btn">Back to Lobby</button>
+
         <audio id="clickSound" src="audio-track/touch-button.mp3"></audio>
+        <audio id="bgMusic" class="bg-music" src="audio-track/lob" autoplay loop></audio>
+
+        <div id="matchOverlay" class="match-overlay" aria-hidden="true">
+            <div class="match-card">
+                <div id="searchingView" class="match-view">
+                    <h3>Searching for match...</h3>
+                    <div class="dots"><span></span><span></span><span></span></div>
+                    <button id="cancelSearch" class="option-btn">Cancel</button>
+                </div>
+
+                <div id="foundView" class="match-view" style="display:none;">
+                    <h3>Match Found!</h3>
+                    <div class="opponent-card">
+                        <img id="oppAvatar" src="backgrounds/nomekop.png" alt="opponent avatar">
+                        <div>
+                            <div id="oppName" class="opp-name">Opponent</div>
+                            <div id="oppInfo" class="opp-info">Level 10 • Region</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="vsOverlay" class="vs-overlay" aria-hidden="true">
+            <div class="vs-container">
+                <div class="vs-energy"></div>
+
+                <div class="vs-left">
+                    <img id="vsPlayerSprite" class="vs-sprite" alt="player sprite">
+                    <div class="vs-name" id="vsPlayerName">YOU</div>
+                </div>
+
+                <div class="vs-center">
+                    <span class="vs-text">VS</span>
+                </div>
+
+                <div class="vs-right">
+                    <img id="vsOppSprite" class="vs-sprite" alt="opp sprite">
+                    <div class="vs-name" id="vsOppName">Opponent</div>
+                </div>
+
+                <div class="vs-flash" id="vsFlash"></div>
+                <div id="vsSparks" class="vs-sparks" aria-hidden="true"></div>
+                <div id="vsImpact" class="vs-impact" aria-hidden="true"></div>
+
+                <audio id="vsSound" src="audio-track/pokemon-battle.mp3"></audio>
+            </div>
+        </div>
+
+        <div id="battleOverlay" class="battle-overlay" aria-hidden="true">
+            <div class="battle-ui">
+                <div class="battle-top">
+                    <div class="opponent-panel">
+                        <div class="portrait">
+                            <img id="oppSprite" src="pokeSprites/Abra.gif" alt="opponent">
+                        </div>
+                        <div class="opp-meta">
+                            <div class="hpbar">
+                                <div id="oppHP" class="hp-inner" style="width:100%"></div>
+                            </div>
+                            <div id="oppHPText" class="hp-text">100 / 100</div>
+                            <div id="oppLabel" class="label">Enemy</div>
+                        </div>
+                    </div>
+
+                    <div class="player-panel">
+                        <div class="portrait">
+                            <img id="playerSprite" src="pokeSprites/Absol.gif" alt="player">
+                        </div>
+                        <div class="player-meta">
+                            <div class="hpbar">
+                                <div id="playerHP" class="hp-inner" style="width:100%"></div>
+                            </div>
+                            <div id="playerHPText" class="hp-text">100 / 100</div>
+                            <div id="playerLabel" class="label"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="battle-controls">
+                    <div class="battle-log" id="battleLog">Battle start! Prepare to fight.</div>
+                    <div class="action-row">
+                        <button id="attackBtn" class="option-btn">Attack</button>
+                        <button id="defendBtn" class="option-btn">Defend</button>
+                        <button id="itemBtn" class="option-btn">Use Potion</button>
+                        <button id="forfeitBtn" class="option-btn">Forfeit</button>
+                    </div>
+                </div>
+
+                <div class="battle-footer">
+                    <button id="returnToLobbyBtn" class="option-btn" style="display:none;">Return to Lobby</button>
+                    <button id="rematchBtn" class="option-btn" style="display:none;">Rematch</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="winnerOverlay" class="winner-overlay" aria-hidden="true">
+            <div class="winner-container">
+                <img id="winnerBackground" class="winner-bg" src="backgrounds/matchWL.jpg">
+
+                <div class="winner-content">
+                    <div id="winnerTitle" class="winner-title">YOU WIN!</div>
+
+                    <img id="winnerSprite" class="winner-sprite" alt="Winner Sprite">
+
+                    <div class="winner-buttons">
+                        <button id="winnerLobbyBtn" class="option-btn">Return to Lobby</button>
+                        <button id="winnerRematchBtn" class="option-btn">Rematch</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </section>
+    <audio id="victorySound" src="audio-track/victory-theme.mp3"></audio>
+    <audio id="defeatSound" src="audio-track/defeat-theme.mp3"></audio>
+
     <script src="lobby.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
