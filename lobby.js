@@ -102,215 +102,222 @@ const MatchClient = (function(){
     };
 })();
 
-/* ---------- battle system (unchanged) ---------- */
-function createBattle(playerChoiceSprite, opponent) {
+function createBattle(playerSpriteFile, opponent) {
     window.lastOpponentUsed = opponent;
+
     const state = {
         maxHP: 100,
         playerHP: 100,
         oppHP: 100,
-        playerGuard: false,
-        oppGuard: false,
-        playerSprite: playerChoiceSprite,
-        opponent: opponent,
-        turn: 'player',
+        energy: 5,
+        maxEnergy: 10,
+        turn: "player",
         running: true
     };
 
-    const battleOverlay = document.getElementById("battleOverlay");
-    const battleLog = document.getElementById("battleLog");
+    const skills = [
+        { name: "Quick Hit", dmg: 15, cost: 1 },
+        { name: "Focused Strike", dmg: 25, cost: 2 },
+        { name: "Gale Jab", dmg: 30, cost: 3 },
+        { name: "Primal Burst", dmg: 55, cost: 5, ultimate: true }
+    ];
+
     const oppSprite = document.getElementById("oppSprite");
     const playerSprite = document.getElementById("playerSprite");
-    const oppHPbar = document.getElementById("oppHP");
-    const playerHPbar = document.getElementById("playerHP");
+
+    const oppHPBar = document.getElementById("oppHP");
+    const playerHPBar = document.getElementById("playerHP");
+
     const oppHPText = document.getElementById("oppHPText");
     const playerHPText = document.getElementById("playerHPText");
-    const attackBtn = document.getElementById("attackBtn");
-    const defendBtn = document.getElementById("defendBtn");
-    const itemBtn = document.getElementById("itemBtn");
+
+    const skillCards = document.getElementById("skillCards");
+    const energyDots = document.getElementById("energyDots");
+    const energyCount = document.getElementById("energyCount");
+
+    const skipTurnBtn = document.getElementById("skipTurnBtn");
     const forfeitBtn = document.getElementById("forfeitBtn");
-    const returnToLobbyBtn = document.getElementById("returnToLobbyBtn");
-    const rematchBtn = document.getElementById("rematchBtn");
-    const playerLabel = document.getElementById("playerLabel");
-    const oppLabel = document.getElementById("oppLabel");
 
-    oppSprite.src = `pokeSprites/${state.opponent.sprite}`;
-    playerSprite.src = `pokeSprites/${state.playerSprite}`;
-    playerLabel.innerText = "You";
-    oppLabel.innerText = `${state.opponent.name} (Lv ${state.opponent.level})`;
+    const battleOverlay = document.getElementById("battleOverlay");
+    const damageLayer = document.getElementById("damageLayer");
 
-    function log(msg) {
-        battleLog.innerHTML += `<div>• ${msg}</div>`;
-        battleLog.scrollTop = battleLog.scrollHeight;
+    document.getElementById("playerSprite").src = `pokeSprites/${playerSpriteFile}`;
+    document.getElementById("oppSprite").src = `pokeSprites/${opponent.sprite}`;
+
+    battleOverlay.setAttribute("aria-hidden","false");
+
+    /* --------------------
+       UI Update Functions
+    -------------------- */
+    function updateEnergy() {
+        energyDots.innerHTML = "";
+        for (let i = 0; i < state.energy; i++) {
+            const dot = document.createElement("div");
+            dot.classList.add("energyDot");
+            energyDots.appendChild(dot);
+        }
+        energyCount.textContent = `${state.energy} / ${state.maxEnergy}`;
     }
 
     function updateHP() {
-        const oppPct = Math.max(0, Math.round((state.oppHP / state.maxHP) * 100));
-        const playerPct = Math.max(0, Math.round((state.playerHP / state.maxHP) * 100));
-        oppHPbar.style.width = oppPct + '%';
-        playerHPbar.style.width = playerPct + '%';
-        oppHPText.innerText = `${Math.max(0,state.oppHP)} / ${state.maxHP}`;
-        playerHPText.innerText = `${Math.max(0,state.playerHP)} / ${state.maxHP}`;
+        const p = (state.playerHP / state.maxHP) * 100;
+        const o = (state.oppHP / state.maxHP) * 100;
+
+        playerHPBar.style.width = p + "%";
+        oppHPBar.style.width = o + "%";
+
+        playerHPText.textContent = `${state.playerHP} / ${state.maxHP}`;
+        oppHPText.textContent = `${state.oppHP} / ${state.maxHP}`;
     }
 
-    function endBattle(result, reason) {
-        state.running = false;
-        log(reason || (result === 'win' ? 'You won!' : 'You lost.'));
-        attackBtn.disabled = true;
-        defendBtn.disabled = true;
-        itemBtn.disabled = true;
-        forfeitBtn.disabled = true;
+    function showDamage(target, amount) {
+        const txt = document.createElement("div");
+        txt.classList.add("damageText");
+        txt.textContent = `-${amount}`;
 
-        showWinnerScreen(result, state.playerSprite, state.opponent);
+        const rect = target.getBoundingClientRect();
+        txt.style.left = rect.left + rect.width/2 + "px";
+        txt.style.top = rect.top + "px";
 
+        damageLayer.appendChild(txt);
+        setTimeout(()=>txt.remove(), 1000);
     }
 
-    function opponentAction() {
-        if (!state.running) return;
-        const choice = Math.random();
-        if (choice < 0.65) {
-            const base = 8 + Math.floor(Math.random()*10);
-            const dmg = state.playerGuard ? Math.max(1, Math.round(base*0.4)) : base;
-            state.playerHP = Math.max(0, state.playerHP - dmg);
-            log(`${state.opponent.name} attacked for ${dmg} damage.`);
-            state.playerGuard = false;
-            updateHP();
-            if (state.playerHP <= 0) {
-                endBattle('lose', `${state.opponent.name} destroyed your HP.`);
+    /* --------------------
+       Skill Cards
+    -------------------- */
+    function loadSkillCards() {
+        skillCards.innerHTML = "";
+
+        skills.forEach((skill, i) => {
+            const card = document.createElement("div");
+            card.classList.add("skill-card");
+
+            card.innerHTML = `
+                <div class="skill-name">${skill.name}</div>
+                <div class="skill-cost">⚡ ${skill.cost}</div>
+            `;
+
+            card.onclick = () => useSkill(skill);
+
+            skillCards.appendChild(card);
+        });
+
+        refreshSkillStates();
+    }
+
+    function refreshSkillStates() {
+        [...skillCards.children].forEach((card, idx) => {
+            const skill = skills[idx];
+            if (state.energy < skill.cost) {
+                card.classList.add("disabled");
             } else {
-                state.turn = 'player';
-                attackBtn.disabled = false;
-                defendBtn.disabled = false;
-                itemBtn.disabled = false;
+                card.classList.remove("disabled");
             }
-        } else {
-            state.oppGuard = true;
-            log(`${state.opponent.name} is guarding!`);
-            state.turn = 'player';
-            attackBtn.disabled = false;
-            defendBtn.disabled = false;
-            itemBtn.disabled = false;
-        }
+        });
     }
 
-    // player actions
-    attackBtn.onclick = () => {
-        if (!state.running || state.turn !== 'player') return;
-        audioManager.updateVolumes();
-        attackBtn.disabled = true;
-        defendBtn.disabled = true;
-        itemBtn.disabled = true;
+    /* --------------------
+       Player Skill Use
+    -------------------- */
+    function useSkill(skill) {
+        if (!state.running || state.turn !== "player") return;
+        if (state.energy < skill.cost) return;
 
-        const base = 10 + Math.floor(Math.random()*12);
-        const dmg = state.oppGuard ? Math.max(1, Math.round(base*0.45)) : base;
-        state.oppHP = Math.max(0, state.oppHP - dmg);
-        log(`You attacked for ${dmg} damage.`);
-        state.oppGuard = false;
+        state.energy -= skill.cost;
+        updateEnergy();
+        refreshSkillStates();
+
+        // Damage opponent
+        state.oppHP -= skill.dmg;
+        if (state.oppHP < 0) state.oppHP = 0;
+
+        showDamage(oppSprite, skill.dmg);
         updateHP();
 
         if (state.oppHP <= 0) {
-            endBattle('win', 'You knocked out the opponent!');
-            return;
+            return endBattle("win");
         }
 
-        state.turn = 'opponent';
-        setTimeout(() => opponentAction(), 800 + Math.floor(Math.random()*600));
-    };
+        // Opponent’s turn
+        state.turn = "opponent";
+        setTimeout(opponentTurn, 800);
+    }
 
-    defendBtn.onclick = () => {
-        if (!state.running || state.turn !== 'player') return;
-        state.playerGuard = true;
-        log('You brace yourself and guard (reduce next incoming damage).');
-        attackBtn.disabled = true;
-        defendBtn.disabled = true;
-        itemBtn.disabled = true;
-        state.turn = 'opponent';
-        setTimeout(() => opponentAction(), 600 + Math.floor(Math.random()*600));
-    };
-
-    itemBtn.onclick = () => {
-        if (!state.running || state.turn !== 'player') return;
-        if (state.playerHP >= state.maxHP) {
-            log('You are already at full HP.');
-        } else {
-            const heal = Math.min(20, state.maxHP - state.playerHP);
-            state.playerHP += heal;
-            log(`You used a Potion and healed ${heal} HP.`);
-            updateHP();
-        }
-        attackBtn.disabled = true;
-        defendBtn.disabled = true;
-        itemBtn.disabled = true;
-        state.turn = 'opponent';
-        setTimeout(() => opponentAction(), 700 + Math.floor(Math.random()*700));
-    };
-
-    forfeitBtn.onclick = () => {
+    /* --------------------
+       Opponent AI
+    -------------------- */
+    function opponentTurn() {
         if (!state.running) return;
+
+        const dmg = 10 + Math.floor(Math.random()*18);
+        state.playerHP -= dmg;
+        if (state.playerHP < 0) state.playerHP = 0;
+
+        showDamage(playerSprite, dmg);
+        updateHP();
+
+        if (state.playerHP <= 0) return endBattle("lose");
+
+        // End → back to player turn
+        state.energy = Math.min(state.energy + 1, state.maxEnergy);
+        updateEnergy();
+        refreshSkillStates();
+
+        state.turn = "player";
+    }
+
+    /* --------------------
+       Skip Turn
+    -------------------- */
+    skipTurnBtn.onclick = () => {
+        state.energy = Math.min(state.energy + 2, state.maxEnergy);
+
+        updateEnergy();
+        refreshSkillStates();
+
+        state.turn = "opponent";
+        setTimeout(opponentTurn, 600);
+    };
+
+    /* --------------------
+       Forfeit
+    -------------------- */
+    forfeitBtn.onclick = () => {
+        endBattle("lose");
+    };
+
+    /* --------------------
+       End Battle
+    -------------------- */
+    function endBattle(result) {
         state.running = false;
-        log('You forfeited the match.');
-        endBattle('lose', 'You forfeited the match.');
-    };
 
-    rematchBtn.onclick = () => {
-        document.getElementById("returnToLobbyBtn").style.display = 'none';
-        rematchBtn.style.display = 'none';
-        attackBtn.disabled = false;
-        defendBtn.disabled = false;
-        itemBtn.disabled = false;
-        state.playerHP = state.maxHP;
-        state.oppHP = state.maxHP;
-        state.playerGuard = false;
-        state.oppGuard = false;
-        state.running = true;
-        log('Rematch started!');
-        updateHP();
-        state.turn = Math.random() < 0.5 ? 'player' : 'opponent';
-        if (state.turn === 'opponent') {
-            attackBtn.disabled = true; defendBtn.disabled = true; itemBtn.disabled = true;
-            setTimeout(() => opponentAction(), 700 + Math.floor(Math.random()*900));
-        }
-    };
+        battleOverlay.setAttribute("aria-hidden","true");
 
-    returnToLobbyBtn.onclick = () => {
-        closeBattle();
-        showLobby();
-    };
+        const w = document.getElementById("winnerOverlay");
+        const title = document.getElementById("winnerTitle");
+        const sprite = document.getElementById("winnerSprite");
 
-    function openBattle() {
-        battleOverlay.setAttribute('aria-hidden','false');
-        battleOverlay.classList.add('fade-in');
-        updateHP();
-        log(`Battle vs ${state.opponent.name} begins!`);
-        state.turn = Math.random() < 0.6 ? 'player' : 'opponent';
-        if (state.turn === 'player') {
-            log('Your turn. Choose an action.');
-            attackBtn.disabled = false; defendBtn.disabled = false; itemBtn.disabled = false;
+        sprite.style.maxHeight = "200px"; // Winner size D fix
+
+        if (result === "win") {
+            title.textContent = "YOU WIN!";
+            sprite.src = `pokeSprites/${playerSpriteFile}`;
         } else {
-            attackBtn.disabled = true; defendBtn.disabled = true; itemBtn.disabled = true;
-            log(`${state.opponent.name} goes first...`);
-            setTimeout(() => opponentAction(), 700 + Math.floor(Math.random()*900));
+            title.textContent = "YOU LOSE!";
+            sprite.src = `pokeSprites/${opponent.sprite}`;
         }
+
+        w.setAttribute("aria-hidden","false");
     }
 
-    function closeBattle() {
-        battleOverlay.setAttribute('aria-hidden','true');
-        attackBtn.disabled = false;
-        defendBtn.disabled = false;
-        itemBtn.disabled = false;
-        returnToLobbyBtn.style.display = 'none';
-        rematchBtn.style.display = 'none';
-        battleLog.innerHTML = "Battle ended.";
-    }
-
-    openBattle();
-
-    return {
-        state,
-        log,
-        close: closeBattle
-    };
+    /* Start battle! */
+    updateHP();
+    updateEnergy();
+    loadSkillCards();
 }
+
 
 function showWinnerScreen(result, playerSpriteFile, opponent) {
     const overlay = document.getElementById("winnerOverlay");
